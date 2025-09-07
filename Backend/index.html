@@ -118,7 +118,7 @@
       const password = document.getElementById("password").value;
 
       try {
-        const res = await fetch("http://localhost:5000/login", {
+        const res = await fetch("https://sept-rzur.onrender.com/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password })
@@ -126,11 +126,12 @@
 
         const data = await res.json();
 
-       if (res.ok) {
-  localStorage.setItem("token", data.token); // store token
-  window.location.href = "viewstudent.html"; // ✅ correct lowercase name
-}
-
+        if (res.ok) {
+          localStorage.setItem("token", data.token); // ✅ store token
+          window.location.href = "viewstudent.html"; // ✅ redirect
+        } else {
+          alert(data.error || "Invalid credentials");
+        }
       } catch (err) {
         alert("⚠️ Server error, please try again later.");
       }
