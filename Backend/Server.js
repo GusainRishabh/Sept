@@ -4,11 +4,24 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer"); // added
+const nodemailer = require("nodemailer");
+const path = require("path");
+ // added
 
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
+
+// Serve static frontend safely
+const frontendPath = path.join(__dirname, ""); // make sure index.html is here
+app.use(express.static(frontendPath));
+
+// Catch-all route for frontend (React SPA)
+// Only for routes that do NOT start with /api or /students or /login /register
+app.get(/^\/(?!api|students|login|register).*/, (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
 
 const SECRET_KEY = "secretkey"; // In production, use env variable
 const MONGO_URI = "mongodb+srv://monthly:root@cluster0.uv5la.mongodb.net/adminlogin?retryWrites=true&w=majority&appName=Cluster0";
