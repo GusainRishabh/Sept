@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monthly Students - Tiffin Service</title>
+  <style>
+    body {
+      background: #121212;
+      color: #f1f1f1;
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #00f2fe;
+      margin-bottom: 20px;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 15px;
+    }
+    .add-btn {
+      padding: 10px 20px;
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .add-btn:hover { opacity: 0.9; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1e1e1e;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+    th { background: #2a2a2a; color: #00f2fe; }
+    tr:hover { background: #333; }
+    .center { text-align: center; }
+    .action-btn {
+      margin-right: 5px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .edit-btn { background: #4facfe; color: #fff; }
+    .delete-btn { background: #ff4c4c; color: #fff; }
+    .save-btn { background: #00f2fe; color: #000; }
+    .cancel-btn { background: #aaa; color: #000; }
+
+    /* Responsive */
+    @media screen and (max-width: 768px) {
+      table, thead, tbody, th, td, tr { display: block; }
+      th { display: none; }
+      td { padding: 10px; text-align: right; position: relative; }
+      td::before { content: attr(data-label); position: absolute; left: 10px; font-weight: bold; text-align: left; }
+      .top-bar { justify-content: center; margin-bottom: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <h2>All Students - Monthly Subscription</h2>
+  <div class="top-bar">
+    <button class="add-btn" onclick="window.location.href='dashboard.html'">➕ Add Student</button>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Gmail</th>
+        <th>Meals/Day</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Total</th>
+        <th>Paid</th>
+        <th>Pending</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="studentTable">
+      <tr><td colspan="12" class="center">Loading...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const API_URL = "http://localhost:5000/students";
+
+    async function loadStudents() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("⚠️ You must login first!");
+        window.location.href = "index.html";
+        return;
+      }
+
+      try {
+        const res = await fetch(API_URL, { headers: { "Authorization": "Bearer " + token } });
+        const students = await res.json();
+        const tbody = document.getElementById("studentTable");
+        tbody.innerHTML = "";
+
+        if (!students.length) {
+          tbody.innerHTML = `<tr><td colspan="12" class="center">No students found</td></tr>`;
+          return;
+        }
+
+        students.forEach((s, index) => {
+          const start = new Date(s.startDate).toLocaleDateString();
+          const end = new Date(s.endDate).toLocaleDateString();
+          const status = new Date() <= new Date(s.endDate) ? "Active" : "Expired";
+
+          tbody.innerHTML += `
+            <tr id="row-${s._id}">
+              <td data-label="#">${index + 1}</td>
+              <td data-label="Name">${s.name}</td>
+              <td data-label="Phone">${s.phone}</td>
+              <td data-label="gmail">${s.gmail}</td>
+              <td data-label="Meals/Day">${s.meals}</td>
+              <td data-label="Start Date">${start}</td>
+              <td data-label="End Date">${end}</td>
+              <td data-label="Total">${s.totalAmount || 0}</td>
+              <td data-label="Paid">${s.paidAmount || 0}</td>
+              <td data-label="Pending">${s.pendingAmount || 0}</td>
+              <td data-label="Status">${status}</td>
+              <td data-label="Actions">
+                <button class="action-btn edit-btn" onclick="editStudent('${s._id}')">Edit</button>
+                <button class="action-btn delete-btn" onclick="deleteStudent('${s._id}')">Delete</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        alert("⚠️ Unable to load students. Server error.");
+      }
+    }
+
+    async function deleteStudent(id) {
+      const token = localStorage.getItem("token");
+      if (!confirm("Are you sure you want to delete this student?")) return;
+
+      try {
+        const res = await fetch(`${API_URL}/${id}`, { method: "DELETE", headers: { "Authorization": "Bearer " + token } });
+        if (res.ok) {
+          alert("✅ Student deleted successfully!");
+          loadStudents();
+        }
+      } catch (err) {
+        alert("⚠️ Server error, unable to delete.");
+      }
+    }
+
+    function editStudent(id) {
+      const row = document.getElementById(`row-${id}`);
+      const cells = row.querySelectorAll("td");
+
+      cells[1].innerHTML = `<input type="text" value="${cells[1].innerText}" style="width:90%"/>`;
+      cells[2].innerHTML = `<input type="text" value="${cells[2].innerText}" style="width:90%"/>`;
+      cells[3].innerHTML = `<input type="text" value="${cells[3].innerText}" style="width:90%"/>`;
+      cells[4].innerHTML = `<select>
+        <option value="1" ${cells[4].innerText=="1"?"selected":""}>1</option>
+        <option value="2" ${cells[4].innerText=="2"?"selected":""}>2</option>
+        <option value="3" ${cells[4].innerText=="3"?"selected":""}>3</option>
+      </select>`;
+
+      cells[7].innerHTML = `<input type="number" value="${cells[7].innerText}" style="width:80px" id="total-${id}"/>`;
+      cells[8].innerHTML = `<input type="number" value="${cells[8].innerText}" style="width:80px" id="paid-${id}"/>`;
+      cells[9].innerHTML = `<input type="number" value="${cells[9].innerText}" style="width:80px" id="pending-${id}" readonly/>`;
+
+      // Auto-update pending amount
+      const totalInput = document.getElementById(`total-${id}`);
+      const paidInput = document.getElementById(`paid-${id}`);
+      const pendingInput = document.getElementById(`pending-${id}`);
+
+      function updatePending() {
+        const total = parseFloat(totalInput.value) || 0;
+        const paid = parseFloat(paidInput.value) || 0;
+        pendingInput.value = total - paid;
+      }
+
+      totalInput.addEventListener("input", updatePending);
+      paidInput.addEventListener("input", updatePending);
+      updatePending();
+
+      cells[cells.length-1].innerHTML = `
+        <button class="action-btn save-btn" onclick="saveStudent('${id}')">Save</button>
+        <button class="action-btn cancel-btn" onclick="loadStudents()">Cancel</button>
+      `;
+    }
+
+    async function saveStudent(id) {
+      const token = localStorage.getItem("token");
+      const row = document.getElementById(`row-${id}`);
+      const cells = row.querySelectorAll("td");
+
+      const total = parseFloat(cells[7].querySelector("input").value) || 0;
+      const paid = parseFloat(cells[8].querySelector("input").value) || 0;
+      const pending = total - paid;
+
+      const updatedData = {
+        name: cells[1].querySelector("input").value,
+        phone: cells[2].querySelector("input").value,
+        gmail: cells[3].querySelector("input").value,
+        meals: cells[4].querySelector("select").value,
+        totalAmount: total,
+        paidAmount: paid,
+        pendingAmount: pending
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify(updatedData)
+        });
+
+        if (res.ok) {
+          alert("✅ Student updated successfully!");
+          loadStudents();
+        }
+      } catch (err) {
+        alert("⚠️ Server error, unable to update.");
+      }
+    }
+
+    loadStudents();
+  </script>
+</body>
+</html>
