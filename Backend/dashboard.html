@@ -14,13 +14,14 @@
       align-items: center;
       min-height: 100vh;
       margin: 0;
+      padding: 20px;
     }
     .container {
       background: #1e1e1e;
       padding: 30px;
       border-radius: 12px;
       width: 100%;
-      max-width: 450px;
+      max-width: 700px; /* wider for grid */
       box-shadow: 0 6px 18px rgba(0,0,0,0.5);
     }
     h2 {
@@ -28,17 +29,21 @@
       margin-bottom: 20px;
       color: #00f2fe;
     }
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
     .form-group {
-      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
     }
     label {
-      display: block;
       margin-bottom: 6px;
       font-size: 14px;
       color: #bbb;
     }
     input, select {
-      width: 100%;
       padding: 12px;
       border-radius: 8px;
       border: 1px solid #333;
@@ -51,9 +56,12 @@
       border-color: #4facfe;
       box-shadow: 0 0 6px rgba(79, 172, 254, 0.8);
     }
+    .full-width {
+      grid-column: 1 / -1; /* button spans full width */
+    }
     button {
       width: 100%;
-      padding: 12px;
+      padding: 14px;
       background: linear-gradient(90deg, #4facfe, #00f2fe);
       border: none;
       border-radius: 8px;
@@ -62,7 +70,6 @@
       font-weight: bold;
       cursor: pointer;
       transition: 0.3s;
-      margin-top: 10px;
     }
     button:hover { opacity: 0.9; }
   </style>
@@ -100,7 +107,6 @@
         <label for="endDate">End Date (30 Days Later)</label>
         <input type="text" id="endDate" name="endDate" readonly>
       </div>
-      <!-- Payment Section -->
       <div class="form-group">
         <label for="totalAmount">Total Amount</label>
         <input type="number" id="totalAmount" name="totalAmount" placeholder="Total amount for 30 days" required>
@@ -113,8 +119,9 @@
         <label for="pendingAmount">Pending Amount</label>
         <input type="number" id="pendingAmount" name="pendingAmount" placeholder="Pending amount" readonly>
       </div>
-
-      <button type="submit">Add Student</button>
+      <div class="form-group full-width">
+        <button type="submit">Add Student</button>
+      </div>
     </form>
   </div>
 
@@ -167,7 +174,7 @@
       };
 
       try {
-        const res = await fetch("https://sept-4.onrender.com/students", {
+        const res = await fetch("https://sept-3.onrender.com/students", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
