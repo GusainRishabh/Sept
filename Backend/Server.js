@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const path = require("path");
+require("dotenv").config(); 
  // added
 
 const app = express();
@@ -23,8 +24,8 @@ app.get(/^\/(?!api|students|login|register).*/, (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 
-const SECRET_KEY = "secretkey"; // In production, use env variable
-const MONGO_URI = "mongodb+srv://monthly:root@cluster0.uv5la.mongodb.net/adminlogin?retryWrites=true&w=majority&appName=Cluster0";
+const SECRET_KEY = process.env.SECRET_KEY;
+const MONGO_URI = process.env.MONGO_URI;
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -69,8 +70,8 @@ function authenticateToken(req, res, next) {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "garhwalbhojnalay@gmail.com",        // your Gmail
-    pass: "ekqg cnfo ragw stnc"           // app password, not normal password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -376,5 +377,5 @@ app.delete("/students/:id", authenticateToken, async (req, res) => {
   }
 });
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
