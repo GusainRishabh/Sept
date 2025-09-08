@@ -131,7 +131,7 @@
       const start = new Date(this.value);
       if (!isNaN(start)) {
         const end = new Date(start);
-        end.setDate(end.getDate() + 30);
+        end.setDate(end.getDate() + 29);
         document.getElementById("endDate").value = end.toISOString().split("T")[0];
       }
     });
