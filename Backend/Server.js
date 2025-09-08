@@ -69,8 +69,8 @@ function authenticateToken(req, res, next) {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "rishabhgusain51@gmail.com",        // your Gmail
-    pass: "eggi ucst xkip lnwj"           // app password, not normal password
+    user: "garhwalbhojnalay@gmail.com",        // your Gmail
+    pass: "ekqg cnfo ragw stnc"           // app password, not normal password
   }
 });
 
