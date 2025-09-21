@@ -5,12 +5,7 @@ const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const path = require("path");
-<<<<<<< HEAD
 require("dotenv").config();
-=======
-require("dotenv").config(); 
- // added
->>>>>>> 460eb17eb0e9d3feccb62f7e3af44f0abd532df7
 
 const app = express();
 
@@ -68,18 +63,6 @@ function authenticateToken(req, res, next) {
   });
 }
 
-<<<<<<< HEAD
-=======
-// Configure NodeMailer transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
-
->>>>>>> 460eb17eb0e9d3feccb62f7e3af44f0abd532df7
 // Register Admin
 app.post("/register", async (req, res) => {
   try {
